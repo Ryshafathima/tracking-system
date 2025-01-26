@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">     
+        <title>Live Location Tracker</title>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin=""/>
+
+        
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
+
+        <style>
+            #map { height: 350px; }
+        </style>
+    </head>
+    <body>
+        <h1>Live BUS Tracker</h1>
+        <div id="map"></div>
+        <script>
+            var map = L.map('map');
+            map.setView([51.505, -0.09], 13); // Initial view
+
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            }).addTo(map);
+
+            let marker, circle;
+
+            // Watch for user's location
+            navigator.geolocation.watchPosition(success, error);
+
+            function success(pos) {
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+                const accuracy = pos.coords.accuracy;
+
+                // If marker and circle already exist, update their positions
+                if (marker) {
+                    marker.setLatLng([lat, lng]);
+                    circle.setLatLng([lat, lng]);
+                    circle.setRadius(accuracy);
+                } else {
+                    // Create marker and circle for the first time
+                    marker = L.marker([lat, lng]).addTo(map);
+                    circle = L.circle([lat, lng], { radius: accuracy }).addTo(map);
+                }
+
+                // Pan the map to the user's location
+                map.setView([lat, lng], map.getZoom());
+            }
+
+            function error(err) {
+                if (err.code === 1) {
+                    alert("Please allow geolocation access.");
+                } else {
+                    alert("Cannot get current location.");
+                }
+            }
+        </script>
+    </body>
+</html>
+
